@@ -1,4 +1,4 @@
-// 13092025.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿// 13092025.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include <iostream>
@@ -32,7 +32,40 @@ private:
         return dest;
     }
 
+    static int count;
+
 public:
+
+    Student(const char* ln, const char* n, const char* mn,
+        Date bd, const char* ph, const char* c, const char* ctr,
+        const char* un, const char* uc, const char* uctr, const char* gr)
+        : lname(copyString(ln)), name(copyString(n)), mname(copyString(mn)),
+        birthDate(bd), phone(copyString(ph)), city(copyString(c)),
+        country(copyString(ctr)), university(copyString(un)),
+        uniCity(copyString(uc)), uniCountry(copyString(uctr)), group(copyString(gr)) {
+        ++count;
+    }
+
+    Student() : Student("", "", "", { 0,0,0 }, "", "", "", "", "", "", "") {}
+
+    ~Student() {
+        delete[] lname;
+        delete[] name;
+        delete[] mname;
+        delete[] phone;
+        delete[] city;
+        delete[] country;
+        delete[] university;
+        delete[] uniCity;
+        delete[] uniCountry;
+        delete[] group;
+        --count;
+    }
+
+    static int getCount() {
+        return count;
+    }
+
     void input() {
         char buffer[100];
 
@@ -86,7 +119,7 @@ public:
         cout << "Last name: " << lname << endl;
         cout << "First name: " << name << endl;
         cout << "Middle name: " << mname << endl;
-        cout << "Birth date: " 
+        cout << "Birth date: "
             << birthDate.day << "." << birthDate.month << "." << birthDate.year << endl;
         cout << "Phone: " << phone << endl;
         cout << "City: " << city << endl;
@@ -102,11 +135,27 @@ public:
     }
 };
 
+int Student::count = 0;
+
 int main() {
+    cout << "Students count (before): " << Student::getCount() << endl;
+
     Student st;
     st.input();
     st.output();
+
+    cout << "Students count (now): " << Student::getCount() << endl;
+
+    Student st2("name1", "name2", "name", { 1,1,2000 },
+        "0678288586", "KryvyiRih", "Ukraine",
+        "ITSTEP", "KryvyiRih", "Ukraine", "P42");
+    st2.output();
+
+    cout << "Students count (final): " << Student::getCount() << endl;
 }
+
+
+
 
 
 
