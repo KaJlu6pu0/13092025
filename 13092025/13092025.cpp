@@ -29,20 +29,30 @@ private:
         return dest;
     }
 
+    static int count;
+
 public:
-    Student() : lname(nullptr), name(nullptr), mname(nullptr),
-        phone(nullptr), city(nullptr), country(nullptr),
-        university(nullptr), uniCity(nullptr), uniCountry(nullptr),
-        group(nullptr) {
-        birthDate = { 0,0,0 };
+    Student(const char* ln, const char* n, const char* mn,
+        Date bd, const char* ph, const char* c, const char* ctr,
+        const char* un, const char* uc, const char* uctr, const char* gr)
+        : lname(copyString(ln)), name(copyString(n)), mname(copyString(mn)),
+        birthDate(bd), phone(copyString(ph)), city(copyString(c)), country(copyString(ctr)),
+        university(copyString(un)), uniCity(copyString(uc)), uniCountry(copyString(uctr)), group(copyString(gr))
+    {
+        ++count;
     }
+
+    Student() : Student("", "", "", { 0,0,0 }, "", "", "", "", "", "", "") {}
 
     ~Student() {
         delete[] lname; delete[] name; delete[] mname;
         delete[] phone; delete[] city; delete[] country;
         delete[] university; delete[] uniCity; delete[] uniCountry;
         delete[] group;
+        --count;
     }
+
+    static int getCount() { return count; }
 
     inline void setLastName(const char* ln) {
         delete[] lname;
@@ -83,8 +93,19 @@ public:
     }
 };
 
+int Student::count = 0;
+
 int main() {
-    Student st;
-    st.input();
-    st.output();
+    cout << "Students count (before): " << Student::getCount() << endl;
+
+    Student st1;
+    st1.input();
+    st1.output();
+    cout << "Students count (after st1): " << Student::getCount() << endl;
+
+    Student st2("Ivanenko", "Ivan", "Ivanovych", { 1,1,2000 },
+        "123456789", "Kyiv", "Ukraine", "KPI", "Kyiv", "Ukraine", "KP-01");
+    st2.output();
+    cout << "Students count (after st2): " << Student::getCount() << endl;
+
 }
