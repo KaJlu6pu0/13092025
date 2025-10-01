@@ -1,60 +1,86 @@
 ﻿#include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
 
 class Contact {
 private:
-    string fullName;
-    string domashniyTelefon;
-    string rabochiyTelefon;
-    string mobilnyyTelefon;
-    string dopolnitelInfo;
+    char* fullName;
+    string homePhone;
+    string workPhone;
+    string mobilePhone;
+    string additionalInfo;
 
 public:
-    Contact(const string& fullName, const string& domashniyTelefon, const string& rabochiyTelefon,
-            const string& mobilnyyTelefon, const string& dopolnitelInfo)
-        : fullName(fullName), domashniyTelefon(domashniyTelefon), rabochiyTelefon(rabochiyTelefon),
-          mobilnyyTelefon(mobilnyyTelefon), dopolnitelInfo(dopolnitelInfo) {}
+    Contact(const char* name = "", const string& home = "", const string& work = "",
+        const string& mobile = "", const string& info = "")
+        : homePhone(home), workPhone(work), mobilePhone(mobile), additionalInfo(info)
+    {
+        fullName = new char[strlen(name) + 1];
+        strcpy(fullName, name);
+    }
+
+    Contact(const Contact& other)
+        : homePhone(other.homePhone), workPhone(other.workPhone),
+        mobilePhone(other.mobilePhone), additionalInfo(other.additionalInfo)
+    {
+        fullName = new char[strlen(other.fullName) + 1];
+        strcpy(fullName, other.fullName);
+    }
+
+    ~Contact() {
+        delete[] fullName;
+    }
+
+    inline const char* getFullName() const { return fullName; }
+    inline void setFullName(const char* name) {
+        delete[] fullName;
+        fullName = new char[strlen(name) + 1];
+        strcpy(fullName, name);
+    }
+
     void display() const {
         cout << "Full Name: " << fullName << endl;
-        cout << "Home Phone: " << domashniyTelefon << endl;
-        cout << "Work Phone: " << rabochiyTelefon << endl;
-        cout << "Mobile Phone: " << mobilnyyTelefon << endl;
-        cout << "Additional Info: " << dopolnitelInfo << endl;
+        cout << "Home Phone: " << homePhone << endl;
+        cout << "Work Phone: " << workPhone << endl;
+        cout << "Mobile Phone: " << mobilePhone << endl;
+        cout << "Additional Info: " << additionalInfo << endl;
+        cout << "-----------------------------" << endl;
+    }
+
+    void saveToFile(ofstream& outFile) const {
+        outFile << fullName << '\n'
+            << homePhone << '\n'
+            << workPhone << '\n'
+            << mobilePhone << '\n'
+            << additionalInfo << '\n';
+    }
+
+    void loadFromFile(ifstream& inFile) {
+        char buffer[256];
+        inFile.getline(buffer, 256);
+        setFullName(buffer);
+        getline(inFile, homePhone);
+        getline(inFile, workPhone);
+        getline(inFile, mobilePhone);
+        getline(inFile, additionalInfo);
     }
 };
 
-const string& getFullName() const { return fullName; }
-
-void s1() const {
-    cout << "FIO: " << fullName << endl;
-    cout << "Domashniy telefon: " << domashniyTelefon << endl;
-    cout << "Rabochiy telefon: " << rabochiyTelefon << endl;
-    cout << "Mobilnyy telefon: " << mobilnyyTelefon << endl;
-    cout << "Dopolnitel'naya informaciya: " << dopolnitelInfo << endl;
-    cout << "-----------------------------" << endl;
-}
-};
-
 void addContact(vector<Contact>& contacts) {
-    string fullName, domashniyTelefon, rabochiyTelefon, mobilnyyTelefon, dopolnitelInfo;
+    char name[256];
+    string home, work, mobile, info;
+
     cout << "Enter Full Name: ";
-    getline(cin, fullName);
-    
-    cout << "Enter Home Phone: ";
-    getline(cin, domashniyTelefon);
-    
-    cout << "Enter Work Phone: ";
-    getline(cin, rabochiyTelefon);
-    
-    cout << "Enter Mobile Phone: ";
-    getline(cin, mobilnyyTelefon);
-    
-    cout << "Enter Additional Info: ";
-    getline(cin, dopolnitelInfo);
-    
-    contacts.emplace_back(fullName, domashniyTelefon, rabochiyTelefon, mobilnyyTelefon, dopolnitelInfo);
+    cin.ignore();
+    cin.getline(name, 256);
+    cout << "Enter Home Phone: "; getline(cin, home);
+    cout << "Enter Work Phone: "; getline(cin, work);
+    cout << "Enter Mobile Phone: "; getline(cin, mobile);
+    cout << "Enter Additional Info: "; getline(cin, info);
+
+    contacts.emplace_back(name, home, work, mobile, info);
 }
 
 void displayContacts(const vector<Contact>& contacts) {
@@ -64,79 +90,87 @@ void displayContacts(const vector<Contact>& contacts) {
     }
     for (const auto& contact : contacts) {
         contact.display();
-        cout << "-----------------------------" << endl;
     }
 }
 
 void searchContact(const vector<Contact>& contacts) {
-    string searchName;
+    char searchName[256];
     cout << "Enter Full Name to search: ";
-    getline(cin, searchName);
-    
+    cin.ignore();
+    cin.getline(searchName, 256);
+
     bool found = false;
     for (const auto& contact : contacts) {
-        if (contact.getFullName() == searchName) {
+        if (strcmp(contact.getFullName(), searchName) == 0) {
             contact.display();
             found = true;
             break;
         }
     }
-    if (!found) {
+    if (!found) cout << "Contact not found." << endl;
+}
+
+void deleteContact(vector<Contact>& contacts) {
+    char deleteName[256];
+    cout << "Enter Full Name to delete: ";
+    cin.ignore();
+    cin.getline(deleteName, 256);
+
+    auto it = remove_if(contacts.begin(), contacts.end(),
+        [&](const Contact& contact) {
+            return strcmp(contact.getFullName(), deleteName) == 0;
+        });
+
+    if (it != contacts.end()) {
+        contacts.erase(it, contacts.end());
+        cout << "Contact deleted." << endl;
+    }
+    else {
         cout << "Contact not found." << endl;
     }
 }
 
-void deleteContact(vector<Contact>& contacts) {
-    string deleteName;
-    cout << "Enter Full Name to delete: ";
-    getline(cin, deleteName);
-    
-    auto it = remove_if(contacts.begin(), contacts.end(), [&](const Contact& contact) {
-        return contact.getFullName() == deleteName;
-    });
-    
-    if (it != contacts.end()) {
-        contacts.erase(it, contacts.end());
-        cout << "Contact deleted." << endl;
-    } else {
-        cout << "Contact not found." << endl;
+void saveContactsToFile(const vector<Contact>& contacts, const string& filename) {
+    ofstream outFile(filename);
+    for (const auto& contact : contacts) {
+        contact.saveToFile(outFile);
     }
+    cout << "Contacts saved to file." << endl;
+}
+
+void loadContactsFromFile(vector<Contact>& contacts, const string& filename) {
+    ifstream inFile(filename);
+    if (!inFile) {
+        cout << "File not found." << endl;
+        return;
+    }
+
+    contacts.clear();
+    while (inFile.peek() != EOF) {
+        Contact c;
+        c.loadFromFile(inFile);
+        contacts.push_back(c);
+    }
+    cout << "Contacts loaded from file." << endl;
 }
 
 int main() {
     vector<Contact> contacts;
     int choice;
-    
+    string filename = "contacts.txt";
+
     do {
-        cout << "Menu:" << endl;
-        cout << "1. Add Contact" << endl;
-        cout << "2. Display Contacts" << endl;
-        cout << "3. Search Contact" << endl;
-        cout << "4. Delete Contact" << endl;
-        cout << "5. Exit" << endl;
-        cout << "Enter your choice: ";
+        cout << "\nMenu:\n1. Add Contact\n2. Display Contacts\n3. Search Contact\n4. Delete Contact\n5. Save Contacts\n6. Load Contacts\n7. Exit\nEnter your choice: ";
         cin >> choice;
-        cin.ignore();
-        
+
         switch (choice) {
-            case 1:
-                addContact(contacts);
-                break;
-            case 2:
-                displayContacts(contacts);
-                break;
-            case 3:
-                searchContact(contacts);
-                break;
-            case 4:
-                deleteContact(contacts);
-                break;
-            case 5:
-                cout << "Exiting..." << endl;
-                break;
-            default:
-                cout << "Invalid choice. Please try again." << endl;
+        case 1: addContact(contacts); break;
+        case 2: displayContacts(contacts); break;
+        case 3: searchContact(contacts); break;
+        case 4: deleteContact(contacts); break;
+        case 5: saveContactsToFile(contacts, filename); break;
+        case 6: loadContactsFromFile(contacts, filename); break;
+        case 7: cout << "Exiting...\n"; break;
         }
-    } while (choice != 5);
-    
+    } while (choice != 7);
 }
