@@ -1,111 +1,142 @@
 ﻿#include <iostream>
-#include <cstring>
+#include <vector>
+#include <string>
 using namespace std;
 
-struct Date {
-    int day;
-    int month;
-    int year;
-};
-
-class Student {
+class Contact {
 private:
-    char* lname;
-    char* name;
-    char* mname;
-    Date birthDate;
-    char* phone;
-    char* city;
-    char* country;
-    char* university;
-    char* uniCity;
-    char* uniCountry;
-    char* group;
-
-    char* copyString(const char* src) {
-        if (!src) return nullptr;
-        char* dest = new char[strlen(src) + 1];
-        strcpy_s(dest, strlen(src) + 1, src);
-        return dest;
-    }
-
-    static int count;
+    string fullName;
+    string domashniyTelefon;
+    string rabochiyTelefon;
+    string mobilnyyTelefon;
+    string dopolnitelInfo;
 
 public:
-    Student(const char* ln, const char* n, const char* mn,
-        Date bd, const char* ph, const char* c, const char* ctr,
-        const char* un, const char* uc, const char* uctr, const char* gr)
-        : lname(copyString(ln)), name(copyString(n)), mname(copyString(mn)),
-        birthDate(bd), phone(copyString(ph)), city(copyString(c)), country(copyString(ctr)),
-        university(copyString(un)), uniCity(copyString(uc)), uniCountry(copyString(uctr)), group(copyString(gr))
-    {
-        ++count;
-    }
-
-    Student() : Student("", "", "", { 0,0,0 }, "", "", "", "", "", "", "") {}
-
-    ~Student() {
-        delete[] lname; delete[] name; delete[] mname;
-        delete[] phone; delete[] city; delete[] country;
-        delete[] university; delete[] uniCity; delete[] uniCountry;
-        delete[] group;
-        --count;
-    }
-
-    static int getCount() { return count; }
-
-    inline void setLastName(const char* ln) {
-        delete[] lname;
-        lname = copyString(ln);
-    }
-
-    inline const char* getLastName() const { return lname; }
-    inline const char* getUniversity() const { return university; }
-
-    void input() {
-        char buffer[1024];
-        cout << "Enter last name: "; cin.getline(buffer, 666); lname = copyString(buffer);
-        cout << "Enter first name: "; cin.getline(buffer, 1478); name = copyString(buffer);
-        cout << "Enter middle name: "; cin.getline(buffer, 1500); mname = copyString(buffer);
-        cout << "Enter birth date (day month year): "; cin >> birthDate.day >> birthDate.month >> birthDate.year; cin.ignore();
-        cout << "Enter phone: "; cin.getline(buffer, 16); phone = copyString(buffer);
-        cout << "Enter city: "; cin.getline(buffer, 168); city = copyString(buffer);
-        cout << "Enter country: "; cin.getline(buffer, 63); country = copyString(buffer);
-        cout << "Enter university: "; cin.getline(buffer, 6035); university = copyString(buffer);
-        cout << "Enter university city: "; cin.getline(buffer, 168); uniCity = copyString(buffer);
-        cout << "Enter university country: "; cin.getline(buffer, 63); uniCountry = copyString(buffer);
-        cout << "Enter group: "; cin.getline(buffer, 9999); group = copyString(buffer);
-    }
-
-    void output() const {
-        cout << "\n===== Student Information =====\n";
-        cout << "Last name: " << lname << endl;
-        cout << "First name: " << name << endl;
-        cout << "Middle name: " << mname << endl;
-        cout << "Birth date: " << birthDate.day << "." << birthDate.month << "." << birthDate.year << endl;
-        cout << "Phone: " << phone << endl;
-        cout << "City: " << city << endl;
-        cout << "Country: " << country << endl;
-        cout << "University: " << university << endl;
-        cout << "University city: " << uniCity << endl;
-        cout << "University country: " << uniCountry << endl;
-        cout << "Group: " << group << endl;
+    Contact(const string& fullName, const string& domashniyTelefon, const string& rabochiyTelefon,
+            const string& mobilnyyTelefon, const string& dopolnitelInfo)
+        : fullName(fullName), domashniyTelefon(domashniyTelefon), rabochiyTelefon(rabochiyTelefon),
+          mobilnyyTelefon(mobilnyyTelefon), dopolnitelInfo(dopolnitelInfo) {}
+    void display() const {
+        cout << "Full Name: " << fullName << endl;
+        cout << "Home Phone: " << domashniyTelefon << endl;
+        cout << "Work Phone: " << rabochiyTelefon << endl;
+        cout << "Mobile Phone: " << mobilnyyTelefon << endl;
+        cout << "Additional Info: " << dopolnitelInfo << endl;
     }
 };
 
-int Student::count = 0;
+const string& getFullName() const { return fullName; }
+
+void s1() const {
+    cout << "FIO: " << fullName << endl;
+    cout << "Domashniy telefon: " << domashniyTelefon << endl;
+    cout << "Rabochiy telefon: " << rabochiyTelefon << endl;
+    cout << "Mobilnyy telefon: " << mobilnyyTelefon << endl;
+    cout << "Dopolnitel'naya informaciya: " << dopolnitelInfo << endl;
+    cout << "-----------------------------" << endl;
+}
+};
+
+void addContact(vector<Contact>& contacts) {
+    string fullName, domashniyTelefon, rabochiyTelefon, mobilnyyTelefon, dopolnitelInfo;
+    cout << "Enter Full Name: ";
+    getline(cin, fullName);
+    
+    cout << "Enter Home Phone: ";
+    getline(cin, domashniyTelefon);
+    
+    cout << "Enter Work Phone: ";
+    getline(cin, rabochiyTelefon);
+    
+    cout << "Enter Mobile Phone: ";
+    getline(cin, mobilnyyTelefon);
+    
+    cout << "Enter Additional Info: ";
+    getline(cin, dopolnitelInfo);
+    
+    contacts.emplace_back(fullName, domashniyTelefon, rabochiyTelefon, mobilnyyTelefon, dopolnitelInfo);
+}
+
+void displayContacts(const vector<Contact>& contacts) {
+    if (contacts.empty()) {
+        cout << "No contacts available." << endl;
+        return;
+    }
+    for (const auto& contact : contacts) {
+        contact.display();
+        cout << "-----------------------------" << endl;
+    }
+}
+
+void searchContact(const vector<Contact>& contacts) {
+    string searchName;
+    cout << "Enter Full Name to search: ";
+    getline(cin, searchName);
+    
+    bool found = false;
+    for (const auto& contact : contacts) {
+        if (contact.getFullName() == searchName) {
+            contact.display();
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "Contact not found." << endl;
+    }
+}
+
+void deleteContact(vector<Contact>& contacts) {
+    string deleteName;
+    cout << "Enter Full Name to delete: ";
+    getline(cin, deleteName);
+    
+    auto it = remove_if(contacts.begin(), contacts.end(), [&](const Contact& contact) {
+        return contact.getFullName() == deleteName;
+    });
+    
+    if (it != contacts.end()) {
+        contacts.erase(it, contacts.end());
+        cout << "Contact deleted." << endl;
+    } else {
+        cout << "Contact not found." << endl;
+    }
+}
 
 int main() {
-    cout << "Students count (before): " << Student::getCount() << endl;
-
-    Student st1;
-    st1.input();
-    st1.output();
-    cout << "Students count (after st1): " << Student::getCount() << endl;
-
-    Student st2("Ivanenko", "Ivan", "Ivanovych", { 1,1,2000 },
-        "123456789", "Kyiv", "Ukraine", "KPI", "Kyiv", "Ukraine", "KP-01");
-    st2.output();
-    cout << "Students count (after st2): " << Student::getCount() << endl;
-
+    vector<Contact> contacts;
+    int choice;
+    
+    do {
+        cout << "Menu:" << endl;
+        cout << "1. Add Contact" << endl;
+        cout << "2. Display Contacts" << endl;
+        cout << "3. Search Contact" << endl;
+        cout << "4. Delete Contact" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();
+        
+        switch (choice) {
+            case 1:
+                addContact(contacts);
+                break;
+            case 2:
+                displayContacts(contacts);
+                break;
+            case 3:
+                searchContact(contacts);
+                break;
+            case 4:
+                deleteContact(contacts);
+                break;
+            case 5:
+                cout << "Exiting..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 5);
+    
 }
