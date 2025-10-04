@@ -1,176 +1,157 @@
 ﻿#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
+#include <cstring>
+
 using namespace std;
 
-class Contact {
-private:
-    char* fullName;
-    string homePhone;
-    string workPhone;
-    string mobilePhone;
-    string additionalInfo;
-
-public:
-    Contact(const char* name = "", const string& home = "", const string& work = "",
-        const string& mobile = "", const string& info = "")
-        : homePhone(home), workPhone(work), mobilePhone(mobile), additionalInfo(info)
-    {
-        fullName = new char[strlen(name) + 1];
-        strcpy(fullName, name);
-    }
-
-    Contact(const Contact& other)
-        : homePhone(other.homePhone), workPhone(other.workPhone),
-        mobilePhone(other.mobilePhone), additionalInfo(other.additionalInfo)
-    {
-        fullName = new char[strlen(other.fullName) + 1];
-        strcpy(fullName, other.fullName);
-    }
-
-    ~Contact() {
-        delete[] fullName;
-    }
-
-    inline const char* getFullName() const { return fullName; }
-    inline void setFullName(const char* name) {
-        delete[] fullName;
-        fullName = new char[strlen(name) + 1];
-        strcpy(fullName, name);
-    }
-
-    void display() const {
-        cout << "Full Name: " << fullName << endl;
-        cout << "Home Phone: " << homePhone << endl;
-        cout << "Work Phone: " << workPhone << endl;
-        cout << "Mobile Phone: " << mobilePhone << endl;
-        cout << "Additional Info: " << additionalInfo << endl;
-        cout << "-----------------------------" << endl;
-    }
-
-    void saveToFile(ofstream& outFile) const {
-        outFile << fullName << '\n'
-            << homePhone << '\n'
-            << workPhone << '\n'
-            << mobilePhone << '\n'
-            << additionalInfo << '\n';
-    }
-
-    void loadFromFile(ifstream& inFile) {
-        char buffer[256];
-        inFile.getline(buffer, 256);
-        setFullName(buffer);
-        getline(inFile, homePhone);
-        getline(inFile, workPhone);
-        getline(inFile, mobilePhone);
-        getline(inFile, additionalInfo);
-    }
+struct Date {
+    int day;
+    int month;
+    int year;
 };
 
-void addContact(vector<Contact>& contacts) {
-    char name[256];
-    string home, work, mobile, info;
+class Student {
+private:
+    char* lname;
+    char* name;
+    char* mname;
+    Date birthDate;
+    char* phone;
+    char* city;
+    char* country;
+    char* university;
+    char* uniCity;
+    char* uniCountry;
+    char* group;
 
-    cout << "Enter Full Name: ";
-    cin.ignore();
-    cin.getline(name, 256);
-    cout << "Enter Home Phone: "; getline(cin, home);
-    cout << "Enter Work Phone: "; getline(cin, work);
-    cout << "Enter Mobile Phone: "; getline(cin, mobile);
-    cout << "Enter Additional Info: "; getline(cin, info);
-
-    contacts.emplace_back(name, home, work, mobile, info);
-}
-
-void displayContacts(const vector<Contact>& contacts) {
-    if (contacts.empty()) {
-        cout << "No contacts available." << endl;
-        return;
-    }
-    for (const auto& contact : contacts) {
-        contact.display();
-    }
-}
-
-void searchContact(const vector<Contact>& contacts) {
-    char searchName[256];
-    cout << "Enter Full Name to search: ";
-    cin.ignore();
-    cin.getline(searchName, 256);
-
-    bool found = false;
-    for (const auto& contact : contacts) {
-        if (strcmp(contact.getFullName(), searchName) == 0) {
-            contact.display();
-            found = true;
-            break;
-        }
-    }
-    if (!found) cout << "Contact not found." << endl;
-}
-
-void deleteContact(vector<Contact>& contacts) {
-    char deleteName[256];
-    cout << "Enter Full Name to delete: ";
-    cin.ignore();
-    cin.getline(deleteName, 256);
-
-    auto it = remove_if(contacts.begin(), contacts.end(),
-        [&](const Contact& contact) {
-            return strcmp(contact.getFullName(), deleteName) == 0;
-        });
-
-    if (it != contacts.end()) {
-        contacts.erase(it, contacts.end());
-        cout << "Contact deleted." << endl;
-    }
-    else {
-        cout << "Contact not found." << endl;
-    }
-}
-
-void saveContactsToFile(const vector<Contact>& contacts, const string& filename) {
-    ofstream outFile(filename);
-    for (const auto& contact : contacts) {
-        contact.saveToFile(outFile);
-    }
-    cout << "Contacts saved to file." << endl;
-}
-
-void loadContactsFromFile(vector<Contact>& contacts, const string& filename) {
-    ifstream inFile(filename);
-    if (!inFile) {
-        cout << "File not found." << endl;
-        return;
+    char* copyString(const char* src) {
+        char* dest = new char[strlen(src) + 1];
+        strcpy(dest, src);
+        return dest;
     }
 
-    contacts.clear();
-    while (inFile.peek() != EOF) {
-        Contact c;
-        c.loadFromFile(inFile);
-        contacts.push_back(c);
+public:
+    Student() 
+        : lname(nullptr), name(nullptr), mname(nullptr), phone(nullptr), city(nullptr),
+          country(nullptr), university(nullptr), uniCity(nullptr), uniCountry(nullptr), group(nullptr) {
+        birthDate = {0, 0, 0};
     }
-    cout << "Contacts loaded from file." << endl;
-}
 
-int main() {
-    vector<Contact> contacts;
-    int choice;
-    string filename = "contacts.txt";
 
-    do {
-        cout << "\nMenu:\n1. Add Contact\n2. Display Contacts\n3. Search Contact\n4. Delete Contact\n5. Save Contacts\n6. Load Contacts\n7. Exit\nEnter your choice: ";
-        cin >> choice;
+    Student(Student&& other) noexcept {
+        lname = other.lname;
+        name = other.name;
+        mname = other.mname;
+        birthDate = other.birthDate;
+        phone = other.phone;
+        city = other.city;
+        country = other.country;
+        university = other.university;
+        uniCity = other.uniCity;
+        uniCountry = other.uniCountry;
+        group = other.group;
 
-        switch (choice) {
-        case 1: addContact(contacts); break;
-        case 2: displayContacts(contacts); break;
-        case 3: searchContact(contacts); break;
-        case 4: deleteContact(contacts); break;
-        case 5: saveContactsToFile(contacts, filename); break;
-        case 6: loadContactsFromFile(contacts, filename); break;
-        case 7: cout << "Exiting...\n"; break;
-        }
-    } while (choice != 7);
-}
+        other.lname = nullptr;
+        other.name = nullptr;
+        other.mname = nullptr;
+        other.phone = nullptr;
+        other.city = nullptr;
+        other.country = nullptr;
+        other.university = nullptr;
+        other.uniCity = nullptr;
+        other.uniCountry = nullptr;
+        other.group = nullptr;
+    }
+
+    ~Student() {
+        delete[] lname;
+        delete[] name;
+        delete[] mname;
+        delete[] phone;
+        delete[] city;
+        delete[] country;
+        delete[] university;
+        delete[] uniCity;
+        delete[] uniCountry;
+        delete[] group;
+    }
+
+    void input() {
+        char buffer[500];
+
+        cout << "Enter last name: ";
+        cin.getline(buffer, 666);
+        lname = copyString(buffer);
+
+        cout << "Enter first name: ";
+        cin.getline(buffer, 1478);
+        name = copyString(buffer);
+
+        cout << "Enter middle name: ";
+        cin.getline(buffer, 1500);
+        mname = copyString(buffer);
+
+        cout << "Enter birth date (day month year): ";
+        cin >> birthDate.day >> birthDate.month >> birthDate.year;
+        cin.ignore();
+
+        cout << "Enter phone: ";
+        cin.getline(buffer, 16);
+        phone = copyString(buffer);
+
+        cout << "Enter city: ";
+        cin.getline(buffer, 168);
+        city = copyString(buffer);
+
+        cout << "Enter country: ";
+        cin.getline(buffer, 63);
+        country = copyString(buffer);
+
+        cout << "Enter university name: ";
+        cin.getline(buffer, 6035);
+        university = copyString(buffer);
+
+        cout << "Enter university city: ";
+        cin.getline(buffer, 168);
+        uniCity = copyString(buffer);
+
+        cout << "Enter university country: ";
+        cin.getline(buffer, 63);
+        uniCountry = copyString(buffer);
+
+        cout << "Enter group: ";
+        cin.getline(buffer, 9999);
+        group = copyString(buffer);
+    }
+
+    void output() const {
+        cout << "\n===== Student Information =====\n";
+        cout << "Last name: " << lname << endl;
+        cout << "First name: " << name << endl;
+        cout << "Middle name: " << mname << endl;
+        cout << "Birth date: "
+            << birthDate.day << "." << birthDate.month << "." << birthDate.year << endl;
+        cout << "Phone: " << phone << endl;
+        cout << "City: " << city << endl;
+        cout << "Country: " << country << endl;
+        cout << "University: " << university << endl;
+        cout << "University city: " << uniCity << endl;
+        cout << "University country: " << uniCountry << endl;
+        cout << "Group: " << group << endl;
+    }
+
+    char* getUniversity() {
+
+    };
+
+    int main() {
+        Student st;
+        st.input();
+        st.output();
+
+        cout << "\nUsing move constructor to create a new student object...\n";
+        Student mStudent = std::move(st);
+        mStudent.output();
+
+        return 0;
+    }
+};
